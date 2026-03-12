@@ -15,6 +15,8 @@ spec:
       labels:
         {{- include "chatops.backend.selectorLabels" . | nindent 8 }}
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001         # appuser from Dockerfile
