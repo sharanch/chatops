@@ -1,6 +1,8 @@
-# ChatOps 🚀
+# ChatOps
 
 A production-grade real-time chat application built to showcase end-to-end DevOps practices. From source code to a running Kubernetes deployment — fully automated.
+
+The built images are public, to easily test locally. This is a simple one click demo application that is built from groundup, to use github actions, argocd
 
 ![CI — Frontend](https://github.com/sharanch/chatops/actions/workflows/ci-frontend.yml/badge.svg)
 ![CI — Backend](https://github.com/sharanch/chatops/actions/workflows/ci-backend.yml/badge.svg)
