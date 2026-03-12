@@ -134,3 +134,15 @@ input, textarea {
   0%   { transform: translateY(-100%); }
   100% { transform: translateY(100vh); }
 }
+
+/* ── Mobile viewport fix ── */
+@media (max-width: 640px) {
+  :root {
+    --header-h: 52px;
+  }
+
+  /* Prevent pull-to-refresh interfering with chat scroll */
+  body {
+    overscroll-behavior: none;
+  }
+}

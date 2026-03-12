@@ -1,5 +1,5 @@
 .wrapper {
-  padding: 12px 20px 14px;
+  padding: 10px 14px 12px;
   border-top: 1px solid var(--border-dim);
   background: var(--bg-surface);
   flex-shrink: 0;
@@ -26,7 +26,7 @@
 }
 
 .roomTag {
-  padding: 0 14px;
+  padding: 0 12px;
   height: 44px;
   display: flex;
   align-items: center;
@@ -39,33 +39,35 @@
   user-select: none;
 }
 
+/* Hide room tag on very small screens */
+@media (max-width: 380px) {
+  .roomTag { display: none; }
+}
+
 .textarea {
   flex: 1;
   resize: none;
-  padding: 11px 14px;
-  font-size: 13.5px;
+  padding: 11px 12px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--text-primary);
   background: none;
   border: none;
   outline: none;
   min-height: 44px;
-  max-height: 140px;
+  max-height: 120px;
   font-family: var(--font-mono);
   overflow-y: auto;
+  /* Prevent iOS zoom on focus */
+  font-size: max(14px, 1em);
 }
 
 .textarea::placeholder {
   color: var(--text-muted);
 }
 
-.textarea:disabled::placeholder {
-  color: var(--text-muted);
-  opacity: 0.6;
-}
-
 .sendBtn {
-  padding: 0 16px;
+  padding: 0 14px;
   height: 44px;
   display: flex;
   align-items: center;
@@ -74,11 +76,12 @@
   flex-shrink: 0;
   transition: color var(--t-fast), background var(--t-fast), transform var(--t-fast);
   border-left: 1px solid var(--border-dim);
+  /* Larger tap target on mobile */
+  min-width: 44px;
 }
 
 .sendBtn:hover:not(:disabled) {
   background: var(--accent-dim);
-  color: var(--accent);
 }
 
 .sendBtn:active:not(:disabled) {
@@ -91,10 +94,15 @@
 }
 
 .hint {
-  margin-top: 6px;
+  margin-top: 5px;
   font-size: 11px;
   color: var(--text-muted);
   text-align: right;
+}
+
+/* Hide hint on mobile — saves space */
+@media (max-width: 640px) {
+  .hint { display: none; }
 }
 
 kbd {

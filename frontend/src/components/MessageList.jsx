@@ -57,11 +57,10 @@ function MessageGroup({ group, currentUserId }) {
   );
 }
 
-export default function MessageList({ currentUser }) {
+export default function MessageList({ currentUser, onMenuClick }) {
   const { messages, activeRoom, rooms, typingUsers } = useChat();
   const { connected } = useSocket();
   const bottomRef = useRef(null);
-  const listRef = useRef(null);
 
   const roomMessages = messages[activeRoom] || [];
   const grouped = groupMessagesByUser(roomMessages);
@@ -73,9 +72,12 @@ export default function MessageList({ currentUser }) {
   }, [roomMessages, typing]);
 
   return (
-    <div className={styles.wrapper} ref={listRef}>
-      {/* Room header */}
+    <div className={styles.wrapper}>
       <div className={styles.roomHeader}>
+        {/* Hamburger — mobile only */}
+        <button className={styles.menuBtn} onClick={onMenuClick} aria-label="Open menu">
+          ☰
+        </button>
         <div className={styles.roomInfo}>
           <span className={styles.roomHash}>#</span>
           <span className={styles.roomName}>{activeRoomObj?.name}</span>
@@ -83,12 +85,11 @@ export default function MessageList({ currentUser }) {
         <p className={styles.roomDesc}>{activeRoomObj?.description}</p>
         {!connected && (
           <div className={styles.disconnectBanner}>
-            ⚠ Disconnected — attempting to reconnect…
+            ⚠ Reconnecting…
           </div>
         )}
       </div>
 
-      {/* Messages */}
       <div className={styles.list}>
         {grouped.length === 0 && (
           <div className={styles.empty}>

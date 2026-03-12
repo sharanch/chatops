@@ -7,6 +7,42 @@
   flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
+  transition: transform var(--t-slow);
+}
+
+/* Mobile: hide sidebar off-screen by default */
+@media (max-width: 640px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    width: 80vw;
+    max-width: 300px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* Backdrop overlay — mobile only */
+.backdrop {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    animation: fadeIn 0.2s ease;
+  }
 }
 
 /* Brand */
@@ -53,6 +89,23 @@
 .online  { background: var(--online); box-shadow: 0 0 6px var(--online); }
 .offline { background: var(--offline); }
 
+/* Close button — only visible on mobile */
+.closeBtn {
+  display: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 4px 6px;
+  margin-left: auto;
+  transition: color var(--t-fast);
+}
+
+.closeBtn:hover { color: var(--text-primary); }
+
+@media (max-width: 640px) {
+  .closeBtn { display: flex; }
+  .connStatus { display: none; }
+}
+
 /* Sections */
 .section {
   padding: 20px 0 8px;
@@ -93,11 +146,10 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 7px 16px;
+  padding: 9px 16px;
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text-secondary);
-  border-radius: 0;
   transition: background var(--t-fast), color var(--t-fast);
   text-align: left;
 }
@@ -121,9 +173,7 @@
 
 .roomBtn.active .hash { color: var(--accent); opacity: 0.6; }
 
-.roomName {
-  flex: 1;
-}
+.roomName { flex: 1; }
 
 .badge {
   background: var(--accent);
@@ -142,7 +192,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 5px 16px;
+  padding: 6px 16px;
 }
 
 .avatar {
