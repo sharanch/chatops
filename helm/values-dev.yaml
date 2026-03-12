@@ -1,0 +1,34 @@
+# ════════════════════════════════════════════════════════
+# Minikube / Local Dev overrides
+# Usage: helm install chatops ./helm/chatops -f helm/values-dev.yaml
+# ════════════════════════════════════════════════════════
+
+frontend:
+  replicaCount: 1
+  image:
+    pullPolicy: Never        # Use locally built images in Minikube
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+backend:
+  replicaCount: 1
+  image:
+    pullPolicy: Never
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+postgres:
+  storage: 256Mi             # Smaller PVC for local dev
+
+ingress:
+  host: chatops.local

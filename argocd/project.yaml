@@ -1,0 +1,54 @@
+# ════════════════════════════════════════════════════════
+# ArgoCD AppProject — ChatOps
+#
+# Projects provide logical grouping + access control.
+# Defines WHAT repos, WHAT clusters, WHAT namespaces
+# this project is allowed to deploy to.
+# ════════════════════════════════════════════════════════
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: chatops
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: ChatOps real-time chat application
+
+  # Only allow deployments from this repo
+  sourceRepos:
+    - https://github.com/sharanch/chatops   # ← update this
+
+  # Only allow deploying to the local cluster + chatops namespace
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: chatops
+    - server: https://kubernetes.default.svc
+      namespace: argocd
+
+  # What K8s resource kinds are allowed
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  namespaceResourceWhitelist:
+    - group: "apps"
+      kind: Deployment
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: PersistentVolumeClaim
+    - group: "networking.k8s.io"
+      kind: Ingress
+
+  # Sync windows — optional: restrict when auto-sync is allowed
+  # Uncomment to only allow deploys Mon-Fri 9am-6pm
+  # syncWindows:
+  #   - kind: allow
+  #     schedule: "0 9 * * 1-5"
+  #     duration: 9h
+  #     applications: ["*"]

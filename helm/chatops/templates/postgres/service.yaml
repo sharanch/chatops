@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatops-postgres
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "chatops.postgres.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "chatops.postgres.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+      protocol: TCP

@@ -1,0 +1,123 @@
+# ════════════════════════════════════════════════════════
+# CD — Deploy
+# Triggered after CI workflows succeed on main.
+# Updates image tags in helm/values.yaml and pushes back
+# to the repo — ArgoCD detects the change and syncs.
+#
+# This is the GitOps pattern:
+#   CI builds image → CD updates git → ArgoCD deploys
+# ════════════════════════════════════════════════════════
+name: CD — Deploy
+
+on:
+  # Trigger when either CI workflow completes successfully on main
+  workflow_run:
+    workflows:
+      - "CI — Frontend"
+      - "CI — Backend"
+    types:
+      - completed
+    branches:
+      - main
+
+  # Also allow manual deploys from the GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      frontend_tag:
+        description: "Frontend image tag (leave empty to skip)"
+        required: false
+        default: ""
+      backend_tag:
+        description: "Backend image tag (leave empty to skip)"
+        required: false
+        default: ""
+
+jobs:
+  update-helm-values:
+    name: Update Helm Image Tags
+    runs-on: ubuntu-latest
+    # Only run if the triggering workflow succeeded
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    permissions:
+      contents: write   # needed to push back to the repo
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Use a PAT so the push triggers other workflows
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # ── Determine which image tags to update ─────────────
+      - name: Get short SHA
+        id: sha
+        run: echo "short=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Set image tags
+        id: tags
+        run: |
+          # For workflow_run: use the commit SHA that triggered it
+          # For workflow_dispatch: use provided inputs or current SHA
+          FRONTEND_TAG="${{ github.event.inputs.frontend_tag || format('sha-{0}', steps.sha.outputs.short) }}"
+          BACKEND_TAG="${{ github.event.inputs.backend_tag || format('sha-{0}', steps.sha.outputs.short) }}"
+          echo "frontend=$FRONTEND_TAG" >> $GITHUB_OUTPUT
+          echo "backend=$BACKEND_TAG"   >> $GITHUB_OUTPUT
+          echo "Frontend tag: $FRONTEND_TAG"
+          echo "Backend tag:  $BACKEND_TAG"
+
+      # ── Update values.yaml with new image tags ────────────
+      - name: Update frontend image tag in values.yaml
+        if: github.event.workflow_run.name == 'CI — Frontend' || github.event_name == 'workflow_dispatch'
+        run: |
+          sed -i "s|repository: chatops-frontend|repository: ghcr.io/${{ github.repository_owner }}/chatops-frontend|g" helm/chatops/values.yaml
+          sed -i "/chatops-frontend/{n;s/tag: .*/tag: ${{ steps.tags.outputs.frontend }}/}" helm/chatops/values.yaml
+          echo "Updated frontend tag to ${{ steps.tags.outputs.frontend }}"
+
+      - name: Update backend image tag in values.yaml
+        if: github.event.workflow_run.name == 'CI — Backend' || github.event_name == 'workflow_dispatch'
+        run: |
+          sed -i "s|repository: chatops-backend|repository: ghcr.io/${{ github.repository_owner }}/chatops-backend|g" helm/chatops/values.yaml
+          sed -i "/chatops-backend/{n;s/tag: .*/tag: ${{ steps.tags.outputs.backend }}/}" helm/chatops/values.yaml
+          echo "Updated backend tag to ${{ steps.tags.outputs.backend }}"
+
+      # ── Commit and push ───────────────────────────────────
+      - name: Commit and push changes
+        run: |
+          git add helm/chatops/values.yaml
+
+          # Only commit if there are actual changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit — image tags unchanged"
+            exit 0
+          fi
+
+          git commit -m "chore(deploy): update image tags [skip ci]
+
+          Frontend: ${{ steps.tags.outputs.frontend }}
+          Backend:  ${{ steps.tags.outputs.backend }}
+          Triggered by: ${{ github.event_name }}
+          SHA: ${{ github.sha }}"
+
+          git push origin main
+          echo "✅ Pushed updated values.yaml — ArgoCD will sync shortly"
+
+      # ── Summary ───────────────────────────────────────────
+      - name: Job summary
+        run: |
+          echo "## 🚀 Deploy triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Image Tag |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend  | \`${{ steps.tags.outputs.frontend }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend   | \`${{ steps.tags.outputs.backend }}\` |"  >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "ArgoCD will detect the values.yaml change and sync to the cluster." >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,15 @@
+apiVersion: v2
+name: chatops
+description: A production-grade real-time chat application
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+keywords:
+  - chat
+  - realtime
+  - websocket
+  - devops
+
+maintainers:
+  - name: chatops-team

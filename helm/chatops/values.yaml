@@ -1,0 +1,94 @@
+# ════════════════════════════════════════════════════════
+# ChatOps — Default Helm Values
+# Override per environment using values-dev.yaml etc.
+# ════════════════════════════════════════════════════════
+
+global:
+  namespace: chatops
+  imageRegistry: ""          # e.g. "ghcr.io/youruser/" — set in CI
+
+# ── Frontend ─────────────────────────────────────────────
+frontend:
+  image:
+    repository: chatops-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 80
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  env:
+    REACT_APP_SOCKET_URL: "http://chatops.local"
+
+# ── Backend ──────────────────────────────────────────────
+backend:
+  image:
+    repository: chatops-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 4000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "4000"
+    CORS_ORIGIN: "http://chatops.local"
+
+# ── PostgreSQL ───────────────────────────────────────────
+postgres:
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  port: 5432
+  storage: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  auth:
+    database: chatops
+    username: chatops
+    # password comes from Secret — never in values.yaml!
+
+# ── Redis ────────────────────────────────────────────────
+redis:
+  image:
+    repository: redis
+    tag: "7-alpine"
+    pullPolicy: IfNotPresent
+  port: 6379
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+# ── Ingress ──────────────────────────────────────────────
+ingress:
+  enabled: true
+  host: chatops.local
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # Required for WebSocket (Socket.io) support
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";

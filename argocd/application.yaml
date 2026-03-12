@@ -1,0 +1,59 @@
+# ════════════════════════════════════════════════════════
+# ArgoCD Application — ChatOps
+#
+# This tells ArgoCD:
+#   WHERE the Helm chart lives (source)
+#   WHERE to deploy it (destination)
+#   HOW to sync it (syncPolicy)
+#
+# Apply once manually:
+#   kubectl apply -f argocd/application.yaml
+#
+# After that, every git push to helm/ triggers auto-sync.
+# ════════════════════════════════════════════════════════
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chatops
+  namespace: argocd             # ArgoCD always lives in the argocd namespace
+  labels:
+    app.kubernetes.io/name: chatops
+    app.kubernetes.io/managed-by: argocd
+  finalizers:
+    # Ensures child resources are deleted when this Application is deleted
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  # ── Source: where is the Helm chart? ─────────────────
+  source:
+    repoURL: https://github.com/sharanch/chatops   # ← update this
+    targetRevision: main
+    path: helm/chatops
+    helm:
+      valueFiles:
+        - ../../helm/values-dev.yaml    # relative to chart path
+
+  # ── Destination: where to deploy? ────────────────────
+  destination:
+    server: https://kubernetes.default.svc   # in-cluster (Minikube)
+    namespace: chatops
+
+  # ── Sync Policy ───────────────────────────────────────
+  syncPolicy:
+    automated:
+      prune: true       # Delete K8s resources removed from Helm chart
+      selfHeal: true    # Auto-fix if someone manually changes cluster state
+    syncOptions:
+      - CreateNamespace=true        # Creates chatops namespace if missing
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true              # Delete old resources after new ones are healthy
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # ── Health checks ─────────────────────────────────────
+  revisionHistoryLimit: 5           # Keep last 5 deploys for rollback
