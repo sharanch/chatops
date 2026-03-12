@@ -6,7 +6,9 @@
 frontend:
   replicaCount: 1
   image:
-    pullPolicy: Never        # Use locally built images in Minikube
+    repository: ghcr.io/sharanch/chatops-frontend
+    tag: latest
+    pullPolicy: Always
   resources:
     requests:
       cpu: 25m
@@ -18,7 +20,9 @@ frontend:
 backend:
   replicaCount: 1
   image:
-    pullPolicy: Never
+    repository: ghcr.io/sharanch/chatops-backend
+    tag: latest
+    pullPolicy: Always
   resources:
     requests:
       cpu: 50m
@@ -28,7 +32,7 @@ backend:
       memory: 128Mi
 
 postgres:
-  storage: 256Mi             # Smaller PVC for local dev
+  storage: 256Mi
 
 ingress:
   host: chatops.local
