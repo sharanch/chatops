@@ -4,14 +4,8 @@ A production-grade real-time chat application built to showcase end-to-end DevOp
 
 The built images are public, to easily test locally. This is a simple one click demo application that is built from groundup, to use github actions, argocd, helm charts, kubernetes.
 
-**1. Start Minikube**
 
-```bash
-minikube start
-minikube addons enable ingress
-```
-
-**2. Install ArgoCD**
+**. Install ArgoCD**
 
 ```bash
 chmod +x argocd/bootstrap.sh
