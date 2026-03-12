@@ -1,0 +1,109 @@
+.wrapper {
+  padding: 12px 20px 14px;
+  border-top: 1px solid var(--border-dim);
+  background: var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.inputBox {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid);
+  border-radius: 4px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  overflow: hidden;
+}
+
+.inputBox:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.inputBox.disabled {
+  opacity: 0.5;
+}
+
+.roomTag {
+  padding: 0 14px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border-dim);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.textarea {
+  flex: 1;
+  resize: none;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  outline: none;
+  min-height: 44px;
+  max-height: 140px;
+  font-family: var(--font-mono);
+  overflow-y: auto;
+}
+
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.textarea:disabled::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.sendBtn {
+  padding: 0 16px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: color var(--t-fast), background var(--t-fast), transform var(--t-fast);
+  border-left: 1px solid var(--border-dim);
+}
+
+.sendBtn:hover:not(:disabled) {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.sendBtn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.sendBtn:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
