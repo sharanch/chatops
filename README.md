@@ -4,6 +4,12 @@ A production-grade real-time chat application built to showcase end-to-end DevOp
 
 The built images are public, to easily test locally. This is a simple one click demo application that is built from groundup, to use github actions, argocd, helm charts, kubernetes.
 
+You can create a sharable link using cloudflared tunnel
+
+
+```bash
+cloudflared tunnel --url http://192.168.49.2 --http-host-header "chatops.local"
+```
 
 **. Install ArgoCD**
 
