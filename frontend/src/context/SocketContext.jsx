@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 
 const SocketContext = createContext(null);
 
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:4000';
+const SOCKET_URL = `${window.location.protocol}//${window.location.host}`;
 
 export function SocketProvider({ children, user }) {
   const socketRef = useRef(null);
