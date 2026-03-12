@@ -10,8 +10,8 @@ global:
 # ── Frontend ─────────────────────────────────────────────
 frontend:
   image:
-    repository: chatops-frontend
-    tag: latest
+    repository: ghcr.io/sharanch/chatops-frontend
+    tag: sha-4ba07ee
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 80
