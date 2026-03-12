@@ -28,8 +28,8 @@ frontend:
 # ── Backend ──────────────────────────────────────────────
 backend:
   image:
-    repository: chatops-backend
-    tag: latest
+    repository: ghcr.io/sharanch/chatops-backend
+    tag: sha-519c2b2
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 4000
