@@ -41,8 +41,7 @@ export default function Login({ onLogin }) {
           </div>
 
           <p className={styles.tagline}>
-            Real-time team communication.<br />
-            <span className={styles.accent}>Production grade.</span>
+            Real-time team communication.
           </p>
 
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
