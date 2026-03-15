@@ -8,7 +8,6 @@
 .inputBox {
   display: flex;
   align-items: flex-end;
-  gap: 0;
   background: var(--bg-elevated);
   border: 1px solid var(--border-mid);
   border-radius: 4px;
@@ -21,25 +20,23 @@
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-.inputBox.disabled {
-  opacity: 0.5;
-}
+.inputBox.disabled { opacity: 0.5; }
 
+/* Terminal prompt prefix */
 .roomTag {
   padding: 0 12px;
   height: 44px;
   display: flex;
   align-items: center;
-  font-family: var(--font-display);
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-green);
   border-right: 1px solid var(--border-dim);
   flex-shrink: 0;
   user-select: none;
+  white-space: nowrap;
 }
 
-/* Hide room tag on very small screens */
 @media (max-width: 380px) {
   .roomTag { display: none; }
 }
@@ -48,7 +45,6 @@
   flex: 1;
   resize: none;
   padding: 11px 12px;
-  font-size: 14px;
   line-height: 1.55;
   color: var(--text-primary);
   background: none;
@@ -58,13 +54,10 @@
   max-height: 120px;
   font-family: var(--font-mono);
   overflow-y: auto;
-  /* Prevent iOS zoom on focus */
-  font-size: max(14px, 1em);
+  font-size: max(13px, 1em);
 }
 
-.textarea::placeholder {
-  color: var(--text-muted);
-}
+.textarea::placeholder { color: var(--text-muted); }
 
 .sendBtn {
   padding: 0 14px;
@@ -76,22 +69,12 @@
   flex-shrink: 0;
   transition: color var(--t-fast), background var(--t-fast), transform var(--t-fast);
   border-left: 1px solid var(--border-dim);
-  /* Larger tap target on mobile */
   min-width: 44px;
 }
 
-.sendBtn:hover:not(:disabled) {
-  background: var(--accent-dim);
-}
-
-.sendBtn:active:not(:disabled) {
-  transform: scale(0.92);
-}
-
-.sendBtn:disabled {
-  color: var(--text-muted);
-  cursor: not-allowed;
-}
+.sendBtn:hover:not(:disabled) { background: var(--accent-dim); }
+.sendBtn:active:not(:disabled) { transform: scale(0.92); }
+.sendBtn:disabled { color: var(--text-muted); cursor: not-allowed; }
 
 .hint {
   margin-top: 5px;
@@ -100,7 +83,6 @@
   text-align: right;
 }
 
-/* Hide hint on mobile — saves space */
 @media (max-width: 640px) {
   .hint { display: none; }
 }

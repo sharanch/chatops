@@ -1,28 +1,27 @@
 /* ═══════════════════════════════════════════════
-   ChatOps Design System — Dark Industrial Aesthetic
-   Fonts: Syne (display) + JetBrains Mono (body)
+   ChatOps — Terminal Aesthetic (matches sharanch.dev)
+   Font: Fira Code
    ═══════════════════════════════════════════════ */
 
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
+
 :root {
-  /* Core palette */
-  --bg-base:       #07070d;
-  --bg-surface:    #0f0f1a;
-  --bg-elevated:   #161625;
-  --bg-hover:      #1e1e30;
+  /* Core palette — matches resume */
+  --bg-base:       #1a1a1a;
+  --bg-surface:    #222222;
+  --bg-elevated:   #2a2a2a;
+  --bg-hover:      #333333;
+  --bg-header:     #333333;
 
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.04);
-  --border-dim:    rgba(255, 255, 255, 0.08);
-  --border-mid:    rgba(255, 255, 255, 0.14);
+  --border-dim:    #333333;
+  --border-mid:    #444444;
 
-  /* Accent — electric cyan */
-  --accent:        #00e5ff;
-  --accent-dim:    rgba(0, 229, 255, 0.12);
-  --accent-glow:   rgba(0, 229, 255, 0.25);
-
-  /* Secondary accent — neon violet */
-  --violet:        #7c3aed;
-  --violet-dim:    rgba(124, 58, 237, 0.15);
+  /* Accent — terminal green */
+  --accent:        #22c55e;
+  --accent-dim:    rgba(34, 197, 94, 0.12);
+  --accent-glow:   rgba(34, 197, 94, 0.25);
 
   /* Status colors */
   --online:        #22c55e;
@@ -30,13 +29,15 @@
   --offline:       #475569;
 
   /* Text */
-  --text-primary:  #f0f0fa;
-  --text-secondary:#8b8ba8;
-  --text-muted:    #4a4a6a;
+  --text-primary:  #d4d4d4;
+  --text-green:    #22c55e;
+  --text-blue:     #60a5fa;
+  --text-secondary:#9ca3af;
+  --text-muted:    #6b7280;
 
   /* Typography */
-  --font-display:  'Syne', sans-serif;
-  --font-mono:     'JetBrains Mono', monospace;
+  --font-mono:     'Fira Code', monospace;
+  --font-display:  'Fira Code', monospace;
 
   /* Spacing */
   --sidebar-w:     260px;
@@ -89,7 +90,7 @@ body {
 }
 
 button {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   cursor: pointer;
   border: none;
   background: none;
@@ -110,11 +111,6 @@ input, textarea {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(12px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.5; transform: scale(0.8); }
@@ -125,14 +121,9 @@ input, textarea {
   50%       { opacity: 0; }
 }
 
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes scanline {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 /* ── Mobile viewport fix ── */
@@ -140,8 +131,6 @@ input, textarea {
   :root {
     --header-h: 52px;
   }
-
-  /* Prevent pull-to-refresh interfering with chat scroll */
   body {
     overscroll-behavior: none;
   }

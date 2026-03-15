@@ -1,78 +1,107 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useChat } from '../context/ChatContext';
 import { useSocket } from '../context/SocketContext';
-import { useTyping } from '../hooks/useTyping';
-import styles from './MessageInput.module.css';
+import { formatMessageTime, getAvatarColor, getInitials, groupMessagesByUser } from '../utils/helpers';
+import styles from './MessageList.module.css';
 
-export default function MessageInput({ currentUser }) {
-  const [value, setValue] = useState('');
-  const { sendMessage, activeRoom } = useChat();
-  const { connected } = useSocket();
-  const { onType, onBlur } = useTyping();
-  const textareaRef = useRef(null);
-
-  const handleChange = (e) => {
-    setValue(e.target.value);
-    onType();
-    // Auto-resize
-    const el = textareaRef.current;
-    if (el) {
-      el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, 140) + 'px';
-    }
-  };
-
-  const submit = useCallback(() => {
-    if (!value.trim() || !connected) return;
-    sendMessage(value.trim());
-    setValue('');
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-  }, [value, connected, sendMessage]);
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      submit();
-    }
-  };
+function TypingIndicator({ users }) {
+  if (!users || users.length === 0) return null;
+  const label = users.length === 1
+    ? `${users[0]} is typing`
+    : `${users.length} people are typing`;
 
   return (
-    <div className={styles.wrapper}>
-      <div className={`${styles.inputBox} ${!connected ? styles.disabled : ''}`}>
-        <div className={styles.roomTag}>#{activeRoom}</div>
-        <textarea
-          ref={textareaRef}
-          className={styles.textarea}
-          placeholder={connected ? `Message #${activeRoom} — Enter to send, Shift+Enter for newline` : 'Reconnecting…'}
-          value={value}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onBlur={onBlur}
-          disabled={!connected}
-          rows={1}
-          aria-label={`Message input for #${activeRoom}`}
-        />
-        <button
-          className={styles.sendBtn}
-          onClick={submit}
-          disabled={!value.trim() || !connected}
-          aria-label="Send message"
-        >
-          <SendIcon />
-        </button>
-      </div>
-      <p className={styles.hint}>
-        <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for newline
-      </p>
+    <div className={styles.typing}>
+      <span className={styles.typingDots}>
+        <span /><span /><span />
+      </span>
+      <span className={styles.typingText}>{label}…</span>
     </div>
   );
 }
 
-function SendIcon() {
+function MessageGroup({ group, currentUserId }) {
+  const isOwn = group.userId === currentUserId;
+  const color = getAvatarColor(group.username);
+
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13" />
-      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-    </svg>
+    <div className={`${styles.group} ${isOwn ? styles.own : ''}`}>
+      {!isOwn && (
+        <span className={styles.avatar} style={{ '--av-color': color }}>
+          {getInitials(group.username)}
+        </span>
+      )}
+      <div className={styles.groupContent}>
+        {!isOwn && (
+          <div className={styles.groupHeader}>
+            <span className={styles.username}>{group.username}</span>
+            <span className={styles.time}>{formatMessageTime(group.messages[0].createdAt)}</span>
+          </div>
+        )}
+        <div className={styles.bubbles}>
+          {group.messages.map((msg, i) => (
+            <div key={msg.id || i} className={styles.bubble}>
+              <span className={styles.content}>{msg.content}</span>
+              {isOwn && i === group.messages.length - 1 && (
+                <span className={styles.ownTime}>{formatMessageTime(msg.createdAt)}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function MessageList({ currentUser, onMenuClick }) {
+  const { messages, activeRoom, rooms, typingUsers } = useChat();
+  const { connected } = useSocket();
+  const bottomRef = useRef(null);
+
+  const roomMessages = messages[activeRoom] || [];
+  const grouped = groupMessagesByUser(roomMessages);
+  const typing = typingUsers[activeRoom] || [];
+  const activeRoomObj = rooms.find(r => r.id === activeRoom);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [roomMessages, typing]);
+
+  return (
+    <div className={styles.wrapper}>
+      {/* Terminal header bar */}
+      <div className={styles.roomHeader}>
+        <div className={`${styles.termDot} ${styles.dotRed}`} />
+        <div className={`${styles.termDot} ${styles.dotYellow}`} />
+        <div className={`${styles.termDot} ${styles.dotGreen}`} />
+        <button className={styles.menuBtn} onClick={onMenuClick} aria-label="Open menu">☰</button>
+        <div className={styles.roomInfo}>
+          <span className={styles.roomHash}>#</span>
+          <span className={styles.roomName}>{activeRoomObj?.name}</span>
+        </div>
+        <p className={styles.roomDesc}>{activeRoomObj?.description}</p>
+        {!connected && (
+          <div className={styles.disconnectBanner}>⚠ Reconnecting…</div>
+        )}
+      </div>
+
+      <div className={styles.list}>
+        {grouped.length === 0 && (
+          <div className={styles.empty}>
+            <span className={styles.emptyPrompt}>sharan@chatops:~$ _</span>
+            <p>No messages yet. Say hello!</p>
+          </div>
+        )}
+        {grouped.map((group, i) => (
+          <MessageGroup
+            key={`${group.userId}-${i}`}
+            group={group}
+            currentUserId={currentUser.id}
+          />
+        ))}
+        <TypingIndicator users={typing.filter(u => u !== currentUser.username)} />
+        <div ref={bottomRef} />
+      </div>
+    </div>
   );
 }

@@ -18,17 +18,21 @@ export default function Sidebar({ user, onLogout, isOpen, onClose }) {
       {isOpen && <div className={styles.backdrop} onClick={onClose} />}
 
       <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
+        {/* Terminal header bar */}
         <div className={styles.brand}>
-          <span className={styles.logoMark}>C</span>
-          <span className={styles.logoText}>ChatOps</span>
+          <div className={`${styles.termDot} ${styles.dotRed}`} />
+          <div className={`${styles.termDot} ${styles.dotYellow}`} />
+          <div className={`${styles.termDot} ${styles.dotGreen}`} />
+          <span className={styles.logoText}>chatops — channels</span>
           <div className={`${styles.connStatus} ${connected ? styles.online : styles.offline}`}
                title={connected ? 'Connected' : 'Disconnected'} />
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close sidebar">✕</button>
         </div>
 
+        {/* Channels */}
         <nav className={styles.section}>
           <p className={styles.sectionLabel}>
-            <span className={styles.labelPrefix}>//</span> CHANNELS
+            <span className={styles.labelPrefix}>&gt;</span> CHANNELS
           </p>
           <ul className={styles.list}>
             {rooms.map(room => (
@@ -49,9 +53,10 @@ export default function Sidebar({ user, onLogout, isOpen, onClose }) {
           </ul>
         </nav>
 
+        {/* Online users */}
         <nav className={styles.section}>
           <p className={styles.sectionLabel}>
-            <span className={styles.labelPrefix}>//</span> ONLINE — {onlineUsers.length}
+            <span className={styles.labelPrefix}>&gt;</span> ONLINE — {onlineUsers.length}
           </p>
           <ul className={styles.list}>
             {onlineUsers.map(u => (
@@ -64,19 +69,20 @@ export default function Sidebar({ user, onLogout, isOpen, onClose }) {
               </li>
             ))}
             {onlineUsers.length === 0 && (
-              <li className={styles.empty}>No users online</li>
+              <li className={styles.empty}>no users online</li>
             )}
           </ul>
         </nav>
 
+        {/* User footer — terminal prompt style */}
         <div className={styles.userFooter}>
           <span className={styles.avatar} style={{ '--av-color': getAvatarColor(user.username) }}>
             {getInitials(user.username)}
           </span>
           <div className={styles.userInfo}>
-            <span className={styles.userName}>@{user.username}</span>
+            <span className={styles.userName}>sharan@chatops:~$</span>
             <span className={styles.userStatus}>
-              <span className={styles.onlineDot} /> Online
+              <span className={styles.onlineDot} /> {user.username}
             </span>
           </div>
           <button className={styles.logoutBtn} onClick={onLogout} title="Disconnect">⏻</button>

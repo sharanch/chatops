@@ -8,9 +8,7 @@ function TypingIndicator({ users }) {
   if (!users || users.length === 0) return null;
   const label = users.length === 1
     ? `${users[0]} is typing`
-    : users.length === 2
-      ? `${users[0]} and ${users[1]} are typing`
-      : `${users.length} people are typing`;
+    : `${users.length} people are typing`;
 
   return (
     <div className={styles.typing}>
@@ -36,10 +34,8 @@ function MessageGroup({ group, currentUserId }) {
       <div className={styles.groupContent}>
         {!isOwn && (
           <div className={styles.groupHeader}>
-            <span className={styles.username} style={{ color }}>@{group.username}</span>
-            <span className={styles.time}>
-              {formatMessageTime(group.messages[0].createdAt)}
-            </span>
+            <span className={styles.username}>{group.username}</span>
+            <span className={styles.time}>{formatMessageTime(group.messages[0].createdAt)}</span>
           </div>
         )}
         <div className={styles.bubbles}>
@@ -73,27 +69,26 @@ export default function MessageList({ currentUser, onMenuClick }) {
 
   return (
     <div className={styles.wrapper}>
+      {/* Terminal header bar */}
       <div className={styles.roomHeader}>
-        {/* Hamburger — mobile only */}
-        <button className={styles.menuBtn} onClick={onMenuClick} aria-label="Open menu">
-          ☰
-        </button>
+        <div className={`${styles.termDot} ${styles.dotRed}`} />
+        <div className={`${styles.termDot} ${styles.dotYellow}`} />
+        <div className={`${styles.termDot} ${styles.dotGreen}`} />
+        <button className={styles.menuBtn} onClick={onMenuClick} aria-label="Open menu">☰</button>
         <div className={styles.roomInfo}>
           <span className={styles.roomHash}>#</span>
           <span className={styles.roomName}>{activeRoomObj?.name}</span>
         </div>
         <p className={styles.roomDesc}>{activeRoomObj?.description}</p>
         {!connected && (
-          <div className={styles.disconnectBanner}>
-            ⚠ Reconnecting…
-          </div>
+          <div className={styles.disconnectBanner}>⚠ Reconnecting…</div>
         )}
       </div>
 
       <div className={styles.list}>
         {grouped.length === 0 && (
           <div className={styles.empty}>
-            <span className={styles.emptyIcon}>#</span>
+            <span className={styles.emptyPrompt}>sharan@chatops:~$ _</span>
             <p>No messages yet. Say hello!</p>
           </div>
         )}
