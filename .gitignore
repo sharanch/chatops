@@ -33,3 +33,22 @@ terraform/.terraform.lock.hcl
 
 # ── Test coverage ─────────────────────────────
 **/coverage/
+
+
+# Terraform state — never commit
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+ 
+# Terraform vars — contains secrets
+terraform.tfvars
+ 
+# Terraform internals
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+ 

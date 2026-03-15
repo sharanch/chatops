@@ -21,64 +21,50 @@ variable "private_key_path" {
 variable "region" {
   description = "OCI Region"
   type        = string
-  default     = "ap-hyderabad-1"
+  default     = "ap-mumbai-1"
 }
 
 variable "compartment_ocid" {
-  description = "OCI Compartment OCID (use tenancy OCID for root)"
+  description = "OCI Compartment OCID"
   type        = string
 }
 
 variable "availability_domain" {
   description = "Availability Domain"
   type        = string
-  default     = "mIrk:AP-HYDERABAD-1-AD-1"
+  default     = "tFOd:AP-MUMBAI-1-AD-1"
 }
 
-variable "cluster_name" {
-  description = "OKE Cluster name"
+variable "ssh_public_key_path" {
+  description = "Path to SSH public key for VM access"
   type        = string
-  default     = "chatops-cluster"
+  default     = "~/.ssh/id_rsa.pub"
 }
 
-variable "kubernetes_version" {
-  description = "Kubernetes version"
-  type        = string
-  default     = "v1.32.1"
-}
-
-variable "node_shape" {
-  description = "Compute shape for worker nodes (Always Free = VM.Standard.E2.1.Micro)"
+variable "instance_shape" {
+  description = "Always Free shape. ARM: VM.Standard.A1.Flex | AMD: VM.Standard.E2.1.Micro"
   type        = string
   default     = "VM.Standard.E2.1.Micro"
 }
 
-variable "node_count" {
-  description = "Number of worker nodes (Always Free allows 2)"
+variable "instance_ocpus" {
+  description = "OCPUs per instance (only for Flex shapes)"
   type        = number
-  default     = 2
+  default     = 1
+}
+
+variable "instance_memory_gbs" {
+  description = "Memory per instance in GB (only for Flex shapes)"
+  type        = number
+  default     = 1
 }
 
 variable "vcn_cidr" {
-  description = "VCN CIDR block"
-  type        = string
-  default     = "10.0.0.0/16"
+  type    = string
+  default = "10.0.0.0/16"
 }
 
-variable "node_subnet_cidr" {
-  description = "Worker node subnet CIDR"
-  type        = string
-  default     = "10.0.1.0/24"
-}
-
-variable "lb_subnet_cidr" {
-  description = "Load balancer subnet CIDR"
-  type        = string
-  default     = "10.0.2.0/24"
-}
-
-variable "api_subnet_cidr" {
-  description = "Kubernetes API endpoint subnet CIDR"
-  type        = string
-  default     = "10.0.3.0/24"
+variable "subnet_cidr" {
+  type    = string
+  default = "10.0.1.0/24"
 }

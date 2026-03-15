@@ -1,67 +1,56 @@
-# ChatOps — OCI OKE Terraform
+# ChatOps — OCI Free Tier k3s Cluster
 
-Provisions a free OKE (Oracle Kubernetes Engine) cluster on OCI Always Free tier.
+Provisions 2 Always Free VMs on OCI and installs k3s (lightweight Kubernetes).
 
-## What gets created
+## Architecture
+```
+OCI Always Free (2x VM.Standard.A1.Flex ARM)
+├── chatops-k3s-server  (2 OCPU, 12GB) — control plane + workloads
+└── chatops-k3s-agent   (2 OCPU, 12GB) — worker node
+```
 
-- VCN with 3 subnets (API endpoint, worker nodes, load balancer)
-- Internet Gateway, NAT Gateway, Service Gateway
-- Security lists for each subnet
-- OKE Basic Cluster (free tier)
-- Node pool with 2x VM.Standard.E2.1.Micro nodes (Always Free)
+## Always Free limits used
+- 4 ARM OCPUs total (2 per VM) ✅
+- 24GB RAM total (12GB per VM) ✅
+- No load balancer needed (Cloudflare Tunnel) ✅
 
 ## Prerequisites
-
-- OCI account with Always Free tier
-- OCI CLI installed and configured
+- OCI account
+- SSH key pair (`~/.ssh/id_rsa` + `~/.ssh/id_rsa.pub`)
 - Terraform >= 1.3.0
+- OCI CLI configured
 
 ## Usage
 
 ```bash
-# 1. Copy and fill in your values
+# Generate SSH key if you don't have one
+ssh-keygen -t rsa -b 4096
+
+# Copy and fill in your values
 cp terraform.tfvars.example terraform.tfvars
 
-# 2. Initialize
+# Deploy
 terraform init
+terraform apply   # ~3 minutes
 
-# 3. Preview
-terraform plan
+# Get kubeconfig (from outputs)
+scp opc@<server-ip>:/etc/rancher/k3s/k3s.yaml ~/.kube/k3s-config
+sed -i 's/127.0.0.1/<server-ip>/g' ~/.kube/k3s-config
+export KUBECONFIG=~/.kube/k3s-config
 
-# 4. Apply
-terraform apply
-
-# 5. Generate kubeconfig (use the output command)
-oci ce cluster create-kubeconfig \
-  --cluster-id <cluster-id> \
-  --file $HOME/.kube/config \
-  --region ap-hyderabad-1 \
-  --token-version 2.0.0
-
-# 6. Verify
+# Verify nodes
 kubectl get nodes
-```
 
-## After cluster is ready
-
-Deploy ChatOps using the same ArgoCD + Helm approach:
-
-```bash
-# Install ArgoCD
+# Install ArgoCD + deploy ChatOps
 ./argocd/bootstrap.sh
-
-# Create GHCR secret (if images are private)
-kubectl create secret docker-registry ghcr-secret \
-  --docker-server=ghcr.io \
-  --docker-username=sharanch \
-  --docker-password=YOUR_PAT \
-  -n chatops
-
-# ArgoCD will auto-sync and deploy everything
 ```
 
-## Destroy
+## After deployment
 
+SSH into server and run Cloudflare tunnel:
 ```bash
-terraform destroy
+ssh opc@<server-ip>
+cloudflared tunnel run chatops
 ```
+
+App available at: https://chatops.sharanch.dev
