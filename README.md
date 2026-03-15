@@ -9,7 +9,7 @@ You can create a sharable link using cloudflared tunnel
 
 ```bash
 echo "$(minikube ip) chatops.local" | sudo tee -a /etc/hosts
-cloudflared tunnel --url http://192.168.49.2 --http-host-header "chatops.local"
+cloudflared tunnel --url http://$(minikube ip) --http-host-header "chatops.local"
 ```
 
 **. Install ArgoCD**
