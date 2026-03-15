@@ -30,7 +30,7 @@ export default function Login({ onLogin }) {
 
         <p className={styles.tagline}>
           Real-time team communication.<br />
-          <span className={styles.accent}>Production grade.</span>
+          <span className={styles.accent}>Can be used as an Intercomm</span>
         </p>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
