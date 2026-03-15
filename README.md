@@ -1,11 +1,11 @@
-# ChatOps 🚀
+# ChatOps
 
 A production-grade real-time chat application built to showcase end-to-end DevOps practices. From source code to a running Kubernetes deployment — fully automated.
 
 ![CI — Frontend](https://github.com/sharanch/chatops/actions/workflows/ci-frontend.yml/badge.svg)
 ![CI — Backend](https://github.com/sharanch/chatops/actions/workflows/ci-backend.yml/badge.svg)
 
-**Live:** https://chatops.sharanch.dev
+**Live:** https://chatops.sharanch.dev - The site is hosted on a homeserver currently and exposed via cloudflared tunnel using a subdomain
 
 ---
 
