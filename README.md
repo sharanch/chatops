@@ -1,35 +1,17 @@
-# ChatOps
+# ChatOps 🚀
 
 A production-grade real-time chat application built to showcase end-to-end DevOps practices. From source code to a running Kubernetes deployment — fully automated.
 
-The built images are public, to easily test locally. This is a simple one click demo application that is built from groundup, to use github actions, argocd, helm charts, kubernetes.
-
-You can create a sharable link using cloudflared tunnel
-
-
-```bash
-echo "$(minikube ip) chatops.local" | sudo tee -a /etc/hosts
-cloudflared tunnel --url http://$(minikube ip) --http-host-header "chatops.local"
-```
-
-**. Install ArgoCD**
-
-```bash
-chmod +x argocd/bootstrap.sh
-./argocd/bootstrap.sh
-```
-
-This takes ~2 minutes. It will print the admin password at the end.
-
-
 ![CI — Frontend](https://github.com/sharanch/chatops/actions/workflows/ci-frontend.yml/badge.svg)
 ![CI — Backend](https://github.com/sharanch/chatops/actions/workflows/ci-backend.yml/badge.svg)
+
+**Live:** https://chatops.sharanch.dev
 
 ---
 
 ## What is this?
 
-ChatOps is a 3-tier real-time chat app deployed on Minikube using industry-standard DevOps tooling. The goal is to demonstrate a complete GitOps workflow — push code, CI builds and tests it, CD updates the Helm chart, ArgoCD syncs it to Kubernetes. Zero manual steps after the initial setup.
+ChatOps is a 3-tier real-time chat app deployed on Kubernetes using industry-standard DevOps tooling. The goal is to demonstrate a complete GitOps workflow — push code, CI builds and tests it, CD updates the Helm chart, ArgoCD syncs it to Kubernetes. Zero manual steps after the initial setup.
 
 ---
 
@@ -37,7 +19,7 @@ ChatOps is a 3-tier real-time chat app deployed on Minikube using industry-stand
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                        Minikube                         │
+│                     Kubernetes Cluster                   │
 │                                                         │
 │   ┌─────────────┐    ┌─────────────┐                   │
 │   │   Frontend  │    │   Backend   │                   │
@@ -85,6 +67,14 @@ ChatOps is a 3-tier real-time chat app deployed on Minikube using industry-stand
 | GitHub Actions | CI/CD pipelines |
 | ArgoCD | GitOps continuous delivery |
 | GHCR | Container image registry |
+| Cloudflare Tunnel | Zero-trust public access without load balancer |
+
+### Infrastructure as Code
+| Tool | Purpose |
+|------|---------|
+| Terraform | Provisions OCI infrastructure |
+| OCI Provider | VCN, subnets, security lists, compute VMs |
+| k3s | Lightweight Kubernetes on OCI Always Free VMs |
 
 ---
 
@@ -107,7 +97,7 @@ chatops/
 │   │   ├── controllers/      # messageController.js
 │   │   ├── middleware/       # errorHandler, requestLogger
 │   │   ├── routes/           # api.js
-│   │   └── utils/            # logger.js (Winston → JSON for Loki)
+│   │   └── utils/            # logger.js (Winston → JSON in prod)
 │   ├── Dockerfile            # Multi-stage: deps → production
 │   └── docker-compose.dev.yml # Local Postgres + Redis
 │
@@ -117,6 +107,14 @@ chatops/
 │   │   ├── values.yaml       # Default values
 │   │   └── templates/        # K8s manifests (frontend, backend, postgres, redis, ingress)
 │   └── values-dev.yaml       # Minikube overrides
+│
+├── terraform/                # Infrastructure as Code
+│   ├── main.tf               # OCI provider config
+│   ├── variables.tf          # Input variables
+│   ├── network.tf            # VCN, subnet, security list
+│   ├── compute.tf            # 2x Always Free VMs + k3s install
+│   ├── outputs.tf            # IPs, SSH commands, kubeconfig command
+│   └── terraform.tfvars.example  # Example values (copy to terraform.tfvars)
 │
 ├── argocd/
 │   ├── application.yaml      # ArgoCD Application CR
@@ -145,9 +143,39 @@ chatops/
    commits back to main with [skip ci]
         ↓
 4. ArgoCD detects the values.yaml change (polls every 3 min)
-   runs helm template → applies diff to Minikube
+   runs helm template → applies diff to Kubernetes
         ↓
 5. New pods roll out with zero downtime ✅
+```
+
+---
+
+## Infrastructure (Terraform)
+
+Provisions 2x OCI Always Free VMs with k3s installed:
+
+```
+OCI Always Free
+├── chatops-k3s-server  (control plane)
+└── chatops-k3s-agent   (worker node)
+     ↑
+     Cloudflare Tunnel → chatops.sharanch.dev
+```
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+# fill in your OCI credentials
+
+terraform init
+terraform apply
+
+# Get kubeconfig
+scp opc@<server-ip>:/etc/rancher/k3s/k3s.yaml ~/.kube/k3s-config
+sed -i 's/127.0.0.1/<server-ip>/g' ~/.kube/k3s-config
+export KUBECONFIG=~/.kube/k3s-config
+
+kubectl get nodes
 ```
 
 ---
@@ -185,19 +213,14 @@ App runs at **http://localhost:3000**
 minikube start
 minikube addons enable ingress
 
-# 2. Build images into Minikube's Docker
-eval $(minikube docker-env)
-docker build -t chatops-frontend:latest ./frontend
-docker build -t chatops-backend:latest ./backend
-
-# 3. Install ArgoCD
+# 2. Bootstrap ArgoCD
 chmod +x argocd/bootstrap.sh
 ./argocd/bootstrap.sh
 
-# 4. Add host entry
+# 3. Add host entry
 echo "$(minikube ip) chatops.local" | sudo tee -a /etc/hosts
 
-# 5. Open in browser
+# 4. Open in browser
 open http://chatops.local
 ```
 
@@ -206,7 +229,7 @@ open http://chatops.local
 ## CI/CD Pipelines
 
 ### CI — Frontend & Backend
-Triggered on push to `main` or `develop` when files in the respective service folder change.
+Triggered on push to `main` when files in the respective service folder change.
 
 ```
 lint → test → docker build (multi-stage) → push to GHCR
@@ -214,7 +237,6 @@ lint → test → docker build (multi-stage) → push to GHCR
 
 Images are tagged with:
 - `sha-<short-git-sha>` — immutable, traceable
-- `main` — latest on main branch  
 - `latest` — always points to newest main build
 
 ### CD — Deploy
@@ -225,6 +247,8 @@ Triggered automatically when CI succeeds. Updates `helm/values.yaml` with the ne
 ## Key DevOps Concepts Demonstrated
 
 **GitOps** — Git is the single source of truth for cluster state. No `kubectl apply` in CI. ArgoCD reconciles the cluster to match git.
+
+**Infrastructure as Code** — OCI VMs, networking, and security rules provisioned with Terraform. Reproducible with a single `terraform apply`.
 
 **Path-filtered CI** — Frontend CI only runs when `frontend/**` changes. Backend CI only runs when `backend/**` changes. Saves CI minutes, keeps pipelines fast.
 
@@ -237,6 +261,8 @@ Triggered automatically when CI succeeds. Updates `helm/values.yaml` with the ne
 **Graceful shutdown** — Backend handles `SIGTERM` (sent by Kubernetes before pod termination) to finish in-flight requests and close DB connections cleanly.
 
 **Separate liveness vs readiness probes** — Liveness (`/api/health`) checks if the process is alive. Readiness (`/api/ready`) checks if it can serve traffic (DB connected). Kubernetes uses both independently.
+
+**Cloudflare Tunnel** — Exposes the app publicly without a load balancer or open inbound ports. Tunnel connects outbound to Cloudflare's edge.
 
 ---
 
