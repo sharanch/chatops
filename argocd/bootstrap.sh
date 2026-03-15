@@ -59,7 +59,7 @@ echo "✅ ArgoCD Application created"
 # ── 6. Get initial admin password ────────────────────
 echo ""
 echo "▶ Fetching initial admin password..."
-ARGOCD_PASSWORD=$(kubectl -n ${ARGOCD_NAMESPACE} get secret argocd-initial-admin-secret \
+ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 -d)
 echo ""
 echo "╔══════════════════════════════════════════════╗"
