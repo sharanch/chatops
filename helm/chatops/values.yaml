@@ -11,7 +11,7 @@ global:
 frontend:
   image:
     repository: ghcr.io/sharanch/chatops-frontend
-    tag: sha-75f516a
+    tag: sha-e234e39
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 80
