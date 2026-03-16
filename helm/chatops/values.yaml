@@ -29,7 +29,7 @@ frontend:
 backend:
   image:
     repository: ghcr.io/sharanch/chatops-backend
-    tag: sha-519c2b2
+    tag: sha-402bbca
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 4000
