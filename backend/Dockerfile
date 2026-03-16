@@ -15,7 +15,7 @@ FROM node:20-alpine AS production
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Patch system vulnerabilities
-RUN apk update && apk upgrade tar && rm -rf /var/cache/apk/*
+RUN apk update && apk upgrade tar zlib && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
