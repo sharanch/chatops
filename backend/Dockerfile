@@ -2,9 +2,7 @@
 # Stage 1 — Dependencies
 # ════════════════════════════════════════════
 FROM node:20-alpine AS deps
-
 WORKDIR /app
-
 COPY package.json package-lock.json* ./
 RUN npm ci --frozen-lockfile --omit=dev
 
@@ -15,6 +13,9 @@ FROM node:20-alpine AS production
 
 # Security: non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Patch system vulnerabilities
+RUN apk update && apk upgrade tar && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
@@ -27,9 +28,7 @@ COPY package.json ./
 
 # Fix ownership
 RUN chown -R appuser:appgroup /app
-
 USER appuser
-
 EXPOSE 4000
 
 # Liveness: hit /api/health
