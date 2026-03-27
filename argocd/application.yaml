@@ -25,16 +25,16 @@ metadata:
 spec:
   project: default
 
-  # ── Source: where is the Helm chart? ─────────────────
+  # Source: where is the Helm chart?
   source:
-    repoURL: https://github.com/sharanch/chatops   # ← update this
+    repoURL: https://github.com/sharanch/chatops
     targetRevision: main
     path: helm/chatops
     helm:
       valueFiles:
         - ../../helm/values-dev.yaml    # relative to chart path
 
-  # ── Destination: where to deploy? ────────────────────
+  # Destination: where to deploy? well i'm just using minikube, a cloud resource would need the cluster config
   destination:
     server: https://kubernetes.default.svc   # in-cluster (Minikube)
     namespace: chatops
