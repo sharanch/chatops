@@ -17,7 +17,7 @@ spec:
 
   # Only allow deployments from this repo
   sourceRepos:
-    - https://github.com/sharanch/chatops   # ← update this
+    - https://github.com/sharanch/chatops  
 
   # Only allow deploying to the local cluster + chatops namespace
   destinations:
