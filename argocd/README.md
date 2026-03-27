@@ -29,7 +29,7 @@ New pods rolling out ✅
 ## Quick Start
 
 ```bash
-# 1. Update your repo URL in both YAML files first
+# 1. Update your repo URL in both YAML files first, if you wish to fork the repo and make changes
 sed -i 's/YOUR_GITHUB_USERNAME/youractualusername/g' argocd/application.yaml
 sed -i 's/YOUR_GITHUB_USERNAME/youractualusername/g' argocd/project.yaml
 
