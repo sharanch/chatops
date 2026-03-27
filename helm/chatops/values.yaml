@@ -31,7 +31,7 @@ backend:
     repository: ghcr.io/sharanch/chatops-backend
     tag: sha-402bbca
     pullPolicy: IfNotPresent
-  replicaCount: 1
+  replicaCount: 2
   port: 4000
   resources:
     requests:
